@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class DummyClass extends Model
 {
+    use Temper\HashIdsEncode;
+
     /**
      * The database table used by the model.
      *
