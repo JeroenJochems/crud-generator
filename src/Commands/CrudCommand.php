@@ -35,6 +35,7 @@ class CrudCommand extends Command
 
     /** @var string  */
     protected $controller = '';
+    protected $modelName;
 
     /**
      * Create a new command instance.
@@ -54,7 +55,7 @@ class CrudCommand extends Command
     public function handle()
     {
         $name = $this->argument('name');
-        $modelName = str_singular($name);
+        $this->modelName = $modelName = str_singular($name);
         $migrationName = str_plural(snake_case($name));
         $tableName = $migrationName;
 
@@ -77,7 +78,7 @@ class CrudCommand extends Command
 
             $currentField = trim($spareParts[0]);
             $requiredFieldsStr .= (isset($spareParts[2]))
-            ? "'$currentField' => '{$spareParts[2]}', " : '';
+                ? "'$currentField' => '{$spareParts[2]}', " : '';
         }
 
         $commaSeparetedString = implode("', '", $fillableArray);
@@ -120,6 +121,14 @@ class CrudCommand extends Command
      */
     protected function addRoutes()
     {
-        return ["Route::resource('" . $this->routeName . "', '" . $this->controller . "');"];
+
+        return [
+            "Route::get('" . $this->routeName . "/create', '" . $this->controller . "@create')->name('".str_replace(DIRECTORY_SEPARATOR, ".", $this->routeName).".create');",
+            "Route::post('" . $this->routeName . "', '" . $this->controller . "@post')->name('".str_replace(DIRECTORY_SEPARATOR, ".", $this->routeName).".post');",
+            "Route::get('" . $this->routeName . "/{".snake_case($this->modelName)."}/edit', '" . $this->controller . "@create')->name('".str_replace(DIRECTORY_SEPARATOR, ".", $this->routeName).".edit');",
+            "Route::patch('" . $this->routeName . "/{".snake_case($this->modelName)."}', '" . $this->controller . "@patch')->name('".str_replace(DIRECTORY_SEPARATOR, ".", $this->routeName).".patch');",
+            "Route::get('" . $this->routeName . "/{".snake_case($this->modelName)."}/delete', '" . $this->controller . "@delete')->name('".str_replace(DIRECTORY_SEPARATOR, ".", $this->routeName).".delete');",
+
+        ];
     }
 }

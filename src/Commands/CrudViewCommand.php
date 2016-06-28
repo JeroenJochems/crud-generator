@@ -159,6 +159,10 @@ class CrudViewCommand extends Command
      */
     protected $formBodyHtmlForShowView = '';
 
+
+    protected $viewPath;
+
+
     /**
      * Create a new command instance.
      *
@@ -169,8 +173,8 @@ class CrudViewCommand extends Command
         parent::__construct();
 
         $this->viewDirectoryPath = config('crudgenerator.custom_template')
-        ? config('crudgenerator.path')
-        : __DIR__ . '/../stubs/';
+            ? config('crudgenerator.path')
+            : __DIR__ . '/../stubs/';
 
         if (config('crudgenerator.view_columns_number')) {
             $this->defaultColumsToShow = config('crudgenerator.view_columns_number');
@@ -194,7 +198,7 @@ class CrudViewCommand extends Command
 
         $viewDirectory = config('view.paths')[0] . '/';
         if ($this->option('view-path')) {
-            $userPath = $this->option('view-path');
+            $this->viewPath = $userPath = $this->option('view-path');
             $path = $viewDirectory . $userPath . '/' . $this->viewName . '/';
         } else {
             $path = $viewDirectory . $this->viewName . '/';
@@ -261,6 +265,15 @@ class CrudViewCommand extends Command
             $this->templateCreateVars($newCreateFile);
         }
 
+        // For form.blade.php file
+        $formFile = $this->viewDirectoryPath . 'form.blade.stub';
+        $newFormfile = $path . 'form.blade.php';
+        if (!File::copy($formFile, $newFormfile)) {
+            echo "failed to copy $formFile...\n";
+        } else {
+            $this->templateFormVars($newFormfile);
+        }
+
         // For edit.blade.php file
         $editFile = $this->viewDirectoryPath . 'edit.blade.stub';
         $newEditFile = $path . 'edit.blade.php';
@@ -297,7 +310,7 @@ class CrudViewCommand extends Command
         File::put($newIndexFile, str_replace('%%crudNameCap%%', $this->crudNameCap, File::get($newIndexFile)));
         File::put($newIndexFile, str_replace('%%modelName%%', $this->modelName, File::get($newIndexFile)));
         File::put($newIndexFile, str_replace('%%viewName%%', $this->viewName, File::get($newIndexFile)));
-        File::put($newIndexFile, str_replace('%%routeGroup%%', $this->routeGroup, File::get($newIndexFile)));
+        File::put($newIndexFile, str_replace('%%routeGroup%%', str_replace(DIRECTORY_SEPARATOR, ".", $this->routeGroup), File::get($newIndexFile)));
         File::put($newIndexFile, str_replace('%%primaryKey%%', $this->primaryKey, File::get($newIndexFile)));
     }
 
@@ -313,10 +326,28 @@ class CrudViewCommand extends Command
         File::put($newCreateFile, str_replace('%%crudName%%', $this->crudName, File::get($newCreateFile)));
         File::put($newCreateFile, str_replace('%%crudNameCap%%', $this->crudNameCap, File::get($newCreateFile)));
         File::put($newCreateFile, str_replace('%%modelName%%', $this->modelName, File::get($newCreateFile)));
+        File::put($newCreateFile, str_replace('%%viewPath%%', str_replace(DIRECTORY_SEPARATOR, ".", $this->viewPath), File::get($newCreateFile)));
+        File::put($newCreateFile, str_replace('%%routeGroup%%', str_replace(DIRECTORY_SEPARATOR, ".", $this->routeGroup), File::get($newCreateFile)));
         File::put($newCreateFile, str_replace('%%viewName%%', $this->viewName, File::get($newCreateFile)));
-        File::put($newCreateFile, str_replace('%%routeGroup%%', $this->routeGroup, File::get($newCreateFile)));
         File::put($newCreateFile, str_replace('%%formFieldsHtml%%', $this->formFieldsHtml, File::get($newCreateFile)));
 
+    }
+    /**
+     * Update values between %% with real values in create view.
+     *
+     * @param  string $newFormFile
+     *
+     * @return void
+     */
+    public function templateFormVars($newFormFile)
+    {
+        File::put($newFormFile, str_replace('%%crudName%%', $this->crudName, File::get($newFormFile)));
+        File::put($newFormFile, str_replace('%%crudNameCap%%', $this->crudNameCap, File::get($newFormFile)));
+        File::put($newFormFile, str_replace('%%modelName%%', $this->modelName, File::get($newFormFile)));
+        File::put($newFormFile, str_replace('%%viewPath%%', str_replace(DIRECTORY_SEPARATOR, ".", $this->viewPath), File::get($newFormFile)));
+        File::put($newFormFile, str_replace('%%routeGroup%%', str_replace(DIRECTORY_SEPARATOR, ".", $this->routeGroup), File::get($newFormFile)));
+        File::put($newFormFile, str_replace('%%viewName%%', $this->viewName, File::get($newFormFile)));
+        File::put($newFormFile, str_replace('%%formFieldsHtml%%', $this->formFieldsHtml, File::get($newFormFile)));
     }
 
     /**
@@ -333,8 +364,8 @@ class CrudViewCommand extends Command
         File::put($newEditFile, str_replace('%%crudNameCap%%', $this->crudNameCap, File::get($newEditFile)));
         File::put($newEditFile, str_replace('%%modelName%%', $this->modelName, File::get($newEditFile)));
         File::put($newEditFile, str_replace('%%viewName%%', $this->viewName, File::get($newEditFile)));
-        File::put($newEditFile, str_replace('%%viewPath%%', str_replace(DIRECTORY_SEPARATOR, ".", $this->viewDirectoryPath), File::get($newEditFile)));
-        File::put($newEditFile, str_replace('%%routeGroup%%', $this->routeGroup, File::get($newEditFile)));
+        File::put($newEditFile, str_replace('%%viewPath%%', str_replace(DIRECTORY_SEPARATOR, ".", $this->viewPath), File::get($newEditFile)));
+        File::put($newEditFile, str_replace('%%routeGroup%%', str_replace(DIRECTORY_SEPARATOR, ".", $this->routeGroup), File::get($newEditFile)));
         File::put($newEditFile, str_replace('%%formFieldsHtml%%', $this->formFieldsHtml, File::get($newEditFile)));
         File::put($newEditFile, str_replace('%%primaryKey%%', $this->primaryKey, File::get($newEditFile)));
     }
@@ -356,7 +387,7 @@ class CrudViewCommand extends Command
         File::put($newShowFile, str_replace('%%modelName%%', $this->modelName, File::get($newShowFile)));
         File::put($newShowFile, str_replace('%%primaryKey%%', $this->primaryKey, File::get($newShowFile)));
         File::put($newShowFile, str_replace('%%viewName%%', $this->viewName, File::get($newShowFile)));
-        File::put($newShowFile, str_replace('%%routeGroup%%', $this->routeGroup, File::get($newShowFile)));
+        File::put($newShowFile, str_replace('%%routeGroup%%', str_replace(DIRECTORY_SEPARATOR, ".", $this->routeGroup), File::get($newShowFile)));
 
     }
 
