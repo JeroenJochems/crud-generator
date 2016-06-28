@@ -333,6 +333,7 @@ class CrudViewCommand extends Command
         File::put($newEditFile, str_replace('%%crudNameCap%%', $this->crudNameCap, File::get($newEditFile)));
         File::put($newEditFile, str_replace('%%modelName%%', $this->modelName, File::get($newEditFile)));
         File::put($newEditFile, str_replace('%%viewName%%', $this->viewName, File::get($newEditFile)));
+        File::put($newEditFile, str_replace('%%viewPath%%', str_replace(DIRECTORY_SEPARATOR, ".", $this->viewDirectoryPath), File::get($newEditFile)));
         File::put($newEditFile, str_replace('%%routeGroup%%', $this->routeGroup, File::get($newEditFile)));
         File::put($newEditFile, str_replace('%%formFieldsHtml%%', $this->formFieldsHtml, File::get($newEditFile)));
         File::put($newEditFile, str_replace('%%primaryKey%%', $this->primaryKey, File::get($newEditFile)));
