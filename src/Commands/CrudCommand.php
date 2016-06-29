@@ -124,7 +124,7 @@ class CrudCommand extends Command
 
         return [
             "Route::get('" . $this->routeName . "/create', '" . $this->controller . "@create')->name('".str_replace(DIRECTORY_SEPARATOR, ".", $this->routeName).".create');",
-            "Route::post('" . $this->routeName . "', '" . $this->controller . "@post')->name('".str_replace(DIRECTORY_SEPARATOR, ".", $this->routeName).".post');",
+            "Route::post('" . $this->routeName . "', '" . $this->controller . "@store')->name('".str_replace(DIRECTORY_SEPARATOR, ".", $this->routeName).".post');",
             "Route::get('" . $this->routeName . "/{".snake_case($this->modelName)."}/edit', '" . $this->controller . "@create')->name('".str_replace(DIRECTORY_SEPARATOR, ".", $this->routeName).".edit');",
             "Route::patch('" . $this->routeName . "/{".snake_case($this->modelName)."}', '" . $this->controller . "@patch')->name('".str_replace(DIRECTORY_SEPARATOR, ".", $this->routeName).".patch');",
             "Route::get('" . $this->routeName . "/{".snake_case($this->modelName)."}/delete', '" . $this->controller . "@delete')->name('".str_replace(DIRECTORY_SEPARATOR, ".", $this->routeName).".delete');",
